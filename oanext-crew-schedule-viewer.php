@@ -248,9 +248,8 @@ if (!class_exists('OANextCrewScheduleViewer')) {
                 type="submit" value="Go">
             </div>
           </form>
-          <p class="oanext_help_inst">You can find your Crew number on your receipt you received at check-in. All crew
-            numbers are two digits
-            (e.g. 01, 02, 10, 23, ...)</p>
+          <p class="oanext_help_inst">You can find your Crew number on the receipt you received at check-in. All crew
+            numbers are two digits (e.g. 01, 02, 10, 23, ...)</p>
         </div>
         <?php
       }
@@ -265,9 +264,8 @@ if (!class_exists('OANextCrewScheduleViewer')) {
                 type="submit" value="Go">
             </div>
           </form>
-          <p class="oanext_help_inst">You can find your Crew number on your receipt you received at check-in. All crew
-            numbers are two digits
-            (e.g. 01, 02, 10, 23, ...)</p>
+          <p class="oanext_help_inst">You can find your Crew number on the receipt you received at check-in. All crew
+            numbers are two digits (e.g. 01, 02, 10, 23, ...)</p>
         </div>
         <?php
       }
