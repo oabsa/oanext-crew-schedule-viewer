@@ -47,6 +47,7 @@ if (!class_exists('OANextCrewScheduleViewer')) {
 
     function __construct()
     {
+      add_action('wp_enqueue_scripts', array(&$this, 'enqueueJavascript'));
       add_action('wp_enqueue_scripts', array(&$this, 'enqueueCss'));
       add_filter('query_vars', array(&$this, 'queryVariables'), 10);
       add_action('init', array(&$this, 'initRewrites'), 10, 0);
@@ -60,6 +61,12 @@ if (!class_exists('OANextCrewScheduleViewer')) {
     {
       is_null(self::$instance) && self::$instance = new self;
       return self::$instance;
+    }
+
+    function enqueueJavascript()
+    {
+      wp_register_style('oanextcrews-script', plugins_url('oanext.js', __FILE__));
+      wp_enqueue_script('oanextcrews-script');
     }
 
     function enqueueCss()
@@ -184,7 +191,13 @@ if (!class_exists('OANextCrewScheduleViewer')) {
       }
       $results_shown = false;
       if (strlen($crew_id) > 0) {
-        if (preg_match('/^\d{2}+$/', $crew_id)) {
+        // Remove hyphen from string, if exists.
+        $crew_id = trim($crew_id, '-');
+        // Force single numbers to zero-padded numbers
+        if (preg_match('/^[0-9]{1}+$/', $crew_id)) {
+          $crew_id = sprintf("%02d", $crew_id);
+        }
+        if (preg_match('/^[0-9]{2}+$/', $crew_id)) {
           $results = $this->fetchGsheetJson($current_schedule_url);
 
           if (empty($results)) {
