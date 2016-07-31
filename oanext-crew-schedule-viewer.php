@@ -41,9 +41,9 @@ if (!class_exists('OANextCrewScheduleViewer')) {
     protected static $instance;
     private $page_slug = 'crew';
     private $sat_gsheet_url = 'https://spreadsheets.google.com/feeds/list/1YqBU4TaM8ub4cPCJYePDZGEsyxlprBqB2UCGh8luGdU/od6/public/values?alt=json';
-    private $sun_gsheet_url = 'https://spreadsheets.google.com/feeds/list/1YqBU4TaM8ub4cPCJYePDZGEsyxlprBqB2UCGh8luGdU/660815779/public/values?alt=json';
-    private $mon_gsheet_url = 'https://spreadsheets.google.com/feeds/list/1YqBU4TaM8ub4cPCJYePDZGEsyxlprBqB2UCGh8luGdU/168047987/public/values?alt=json';
-    private $tue_gsheet_url = 'https://spreadsheets.google.com/feeds/list/1YqBU4TaM8ub4cPCJYePDZGEsyxlprBqB2UCGh8luGdU/197243237/public/values?alt=json';
+    private $sun_gsheet_url = 'https://spreadsheets.google.com/feeds/list/1YqBU4TaM8ub4cPCJYePDZGEsyxlprBqB2UCGh8luGdU/2/public/values?alt=json';
+    private $mon_gsheet_url = 'https://spreadsheets.google.com/feeds/list/1YqBU4TaM8ub4cPCJYePDZGEsyxlprBqB2UCGh8luGdU/3/public/values?alt=json';
+    private $tue_gsheet_url = 'https://spreadsheets.google.com/feeds/list/1YqBU4TaM8ub4cPCJYePDZGEsyxlprBqB2UCGh8luGdU/4/public/values?alt=json';
 
     function __construct()
     {
@@ -175,86 +175,97 @@ if (!class_exists('OANextCrewScheduleViewer')) {
     function renderPage(&$wp)
     {
       ob_start();
-      $current_schedule_url = $this->sat_gsheet_url;
+      $current_schedule_url = $this->sun_gsheet_url;
       $crew_id = get_query_var('crew_id');
       if (!empty($crew_id)) {
         $crew_id = trim(get_query_var('crew_id'));
       } elseif (!empty($_POST['crew_id'])) {
         $crew_id = trim($_POST['crew_id']);
       }
-      if (strlen($crew_id) > 0 && preg_match('/^\d{2}+$/', $crew_id)) {
-        $results = $this->fetchGsheetJson($current_schedule_url);
+      $results_shown = false;
+      if (strlen($crew_id) > 0) {
+        if (preg_match('/^\d{2}+$/', $crew_id)) {
+          $results = $this->fetchGsheetJson($current_schedule_url);
 
-        if (empty($results)) {
-          ?>
-          <div class="oanext_crew_num_bad">
-            <p>Error loading schedule.</p>
-          </div>
-          <?php
-        } else {
-          ?>
-          <?php
-          $day = $results->feed->title->{'$t'};
-          $entries = $results->feed->entry;
-          $crew_found = false;
-          foreach ((array)$entries as $entry) {
-            $crew_number = $entry->{'gsx$crew'}->{'$t'};
-            if ($crew_number === $crew_id) {
-              $crew_found = true;
-              ?>
-              <h4>Crew <?php echo htmlspecialchars($crew_id) ?> Schedule (<?php echo $day ?>)</h4>
-              <div class="table-responsive">
-              <table style="width:100%; " class="easy-table easy-table-default schedule" border="1">
-              <thead>
-              <tr>
-                <th style="width:25%;text-align:center">Time</th>
-                <th style="width:25%;text-align:center">Activity</th>
-                <th style="width:25%;text-align:center">Location</th>
-              </tr>
-              </thead>
-              <tbody>
-              <?php
-              for ($i = 1; $i <= 12; $i++) {
-                $time = $entry->{'gsx$duration' . $i}->{'$t'};
-                $activity = $entry->{'gsx$activity' . $i}->{'$t'};
-                $location = $entry->{'gsx$location' . $i}->{'$t'};
-                echo "<tr>";
-                echo "<td style=\"text-align:center\">" . $time . "</td>";
-                echo "<td style=\"text-align:center\">" . $activity . "</td>";
-                echo "<td style=\"text-align:center\">" . $location . "</td>";
-                echo "</tr>";
-              }
-            }
-          }
-          if (!$crew_found) {
+          if (empty($results)) {
             ?>
             <div class="oanext_crew_num_bad">
-              <p>Could not find a schedule for Crew number <?php echo htmlspecialchars($crew_id) ?>.</p>
+              <p>Error loading schedule.</p>
+            </div>
+            <?php
+          } else {
+            ?>
+            <?php
+            $day = $results->feed->title->{'$t'};
+            $entries = $results->feed->entry;
+            $crew_found = false;
+            foreach ((array)$entries as $entry) {
+              $crew_number = $entry->{'gsx$crew'}->{'$t'};
+              if ($crew_number === $crew_id) {
+                $crew_found = true;
+                ?>
+                <h4>Crew <?php echo htmlspecialchars($crew_id) ?> Schedule (<?php echo $day ?>)</h4>
+                <div class="table-responsive">
+                <table style="width:100%; " class="easy-table easy-table-default schedule" border="1">
+                <thead>
+                <tr>
+                  <th style="width:25%;text-align:center">Time</th>
+                  <th style="width:25%;text-align:center">Activity</th>
+                  <th style="width:25%;text-align:center">Location</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                for ($i = 1; $i <= 20; $i++) {
+                  $time = $entry->{'gsx$duration' . $i}->{'$t'};
+                  $activity = $entry->{'gsx$activity' . $i}->{'$t'};
+                  $location = $entry->{'gsx$location' . $i}->{'$t'};
+                  echo "<tr>";
+                  echo "<td style=\"text-align:center\">" . $time . "</td>";
+                  echo "<td style=\"text-align:center\">" . $activity . "</td>";
+                  echo "<td style=\"text-align:center\">" . $location . "</td>";
+                  echo "</tr>";
+                }
+                $results_shown = true;
+              }
+            }
+            if (!$crew_found) {
+              ?>
+              <div class="oanext_crew_num_bad">
+                <p>Could not find a schedule for Crew number <?php echo htmlspecialchars($crew_id) ?>.</p>
+              </div>
+              <?php
+            }
+            ?>
+            </tbody>
+            </table>
             </div>
             <?php
           }
           ?>
-          </tbody>
-          </table>
+          <div class="oanext_crew_num_entry">
+            <p class="oanext_entry_inst">Check another Crew schedule:</p>
+            <form method="POST" action="">
+              <div class="oanext_input_group">
+                <label for="crew_id">Crew #:</label> <input id="crew_id" name="crew_id" type="number" size="9"><input
+                  type="submit" value="Go">
+              </div>
+            </form>
+            <p class="oanext_help_inst">You can find your Crew number on the receipt you received at check-in. All crew
+              numbers are two digits (e.g. 01, 02, 10, 23, ...)</p>
+          </div>
+          <?php
+        } else {
+          ?>
+          <div class="oanext_crew_num_bad">
+            <p>Could not find a schedule for Crew number <?php echo htmlspecialchars($crew_id) ?>.<br>Remember all crew
+              numbers are two digits (e.g. 01, 02, 10, 23, ...)</p>
           </div>
           <?php
         }
-        ?>
-        <div class="oanext_crew_num_entry">
-          <p class="oanext_entry_inst">Check another Crew schedule:</p>
-          <form method="POST" action="">
-            <div class="oanext_input_group">
-              <label for="crew_id">Crew #:</label> <input id="crew_id" name="crew_id" type="number" size="9"><input
-                type="submit" value="Go">
-            </div>
-          </form>
-          <p class="oanext_help_inst">You can find your Crew number on the receipt you received at check-in. All crew
-            numbers are two digits (e.g. 01, 02, 10, 23, ...)</p>
-        </div>
-        <?php
       }
       $crew_id = get_query_var('crew_id');
-      if (!isset($crew_id) || !isset($_POST['crew_id'])) {
+      if ((!isset($crew_id) || !isset($_POST['crew_id'])) && !$results_shown) {
         ?>
         <div class="oanext_crew_num_entry">
           <p class="oanext_entry_inst">Enter your Crew number to check your schedule.</p>
