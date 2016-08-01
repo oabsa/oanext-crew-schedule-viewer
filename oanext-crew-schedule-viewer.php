@@ -182,7 +182,7 @@ if (!class_exists('OANextCrewScheduleViewer')) {
     function renderPage(&$wp)
     {
       ob_start();
-      $current_schedule_url = $this->sun_gsheet_url;
+      $current_schedule_url = $this->mon_gsheet_url;
       $crew_id = get_query_var('crew_id');
       if (!empty($crew_id)) {
         $crew_id = trim(get_query_var('crew_id'));
@@ -229,7 +229,7 @@ if (!class_exists('OANextCrewScheduleViewer')) {
                 </thead>
                 <tbody>
                 <?php
-                for ($i = 1; $i <= 20; $i++) {
+                for ($i = 1; $i <= 23; $i++) {
                   $time = $entry->{'gsx$duration' . $i}->{'$t'};
                   $activity = $entry->{'gsx$activity' . $i}->{'$t'};
                   $location = $entry->{'gsx$location' . $i}->{'$t'};
